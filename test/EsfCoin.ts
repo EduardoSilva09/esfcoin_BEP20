@@ -1,8 +1,9 @@
 import {
-  loadFixture,
+  loadFixture, time
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
+const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
 
 describe("EsfCoin Tests", function () {
   async function deployFixture() {
@@ -120,5 +121,79 @@ describe("EsfCoin Tests", function () {
         .to.be
         .revertedWithCustomError(esfCoin, "ERC20InsufficientAllowance");
     });
+
+    it("Should mint once", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      const mintAmount = 1000n;
+      await esfCoin.setMintingAmount(mintAmount);
+      const balanceBefore = await esfCoin.balanceOf(otherAccount.address);
+      const instance = esfCoin.connect(otherAccount);
+      await instance.mint();
+      const balanceAfter = await esfCoin.balanceOf(otherAccount.address);
+      expect(balanceAfter).to.equal(balanceBefore + mintAmount);
+    })
+
+    it("Should mint twice (different address)", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      const mintAmount = 1000n;
+      await esfCoin.setMintingAmount(mintAmount);
+
+      const balanceBefore = await esfCoin.balanceOf(owner.address);
+      await esfCoin.mint();
+
+      const instance = esfCoin.connect(otherAccount);
+      await instance.mint();
+
+      const balanceAfter = await esfCoin.balanceOf(owner.address);
+      expect(balanceAfter).to.equal(balanceBefore + mintAmount);
+    })
+
+    it("Should mint twice (different moments)", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      const mintAmount = 1000n;
+      await esfCoin.setMintingAmount(mintAmount);
+
+      const balanceBefore = await esfCoin.balanceOf(owner.address);
+      await esfCoin.mint();
+
+      const mintDelay = ONE_DAY_IN_SECONDS * 2;
+      await time.increase(mintDelay);
+      await esfCoin.mint();
+
+      const balanceAfter = await esfCoin.balanceOf(owner.address);
+      expect(balanceAfter).to.equal(balanceBefore + (mintAmount * 2n));
+    })
+
+    it("Should  NOT set mint amount", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      const mintAmount = 1000n;
+      const instance = esfCoin.connect(otherAccount);
+      await expect(instance.setMintingAmount(mintAmount))
+        .to.be.revertedWith("You do not have permission.");
+    })
+
+    it("Should  NOT set mint delay", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      const instance = esfCoin.connect(otherAccount);
+      await expect(instance.setMintingDelay(ONE_DAY_IN_SECONDS))
+        .to.be.revertedWith("You do not have permission.");
+    })
+
+    it("Should  NOT mint", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+
+      await expect(esfCoin.mint())
+        .to.be.revertedWith("Minting is not enabled.");
+    })
+
+    it("Should  NOT mint twice", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      const mintAmount = 1000n;
+      await esfCoin.setMintingAmount(mintAmount);
+      await esfCoin.mint();
+
+      await expect(esfCoin.mint())
+        .to.be.revertedWith("You cannot mint twice in a row.");
+    })
   });
 });

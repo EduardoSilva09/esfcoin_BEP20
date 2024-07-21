@@ -6,12 +6,53 @@ EsfCoin is a simple [BEP20](https://academy.binance.com/en/glossary/bep-20) toke
 
 This contract creates a basic [BEP20](https://academy.binance.com/en/glossary/bep-20) token named EsfCoin (symbol: ESF). It utilizes OpenZeppelin's ERC20 implementation for standard token functionality.
 
-## Features
+## Contract Details
 
 - **Name**: EsfCoin
 - **Symbol**: ESF
 - **Initial Supply**: 1000 ESF tokens
 - **Decimals**: 18
+
+## ERC20 Compliance
+
+The contract extends the ERC20 standard, providing methods to:
+- Transfer tokens (`transfer`, `transferFrom`, `approve`)
+- Check token balances (`balanceOf`)
+- Approve spending (`allowance`)
+
+## Additional Features
+
+### Minting Functionality
+
+The contract includes a minting feature that allows:
+- **Minting Amount:** The amount of tokens to mint on each call to `mint()`.
+- **Minting Delay:** The time delay in seconds required between consecutive minting operations for each address.
+
+### Owner Controls
+
+The owner of the contract has exclusive rights to:
+- Enable or disable minting.
+- Adjust the minting amount and delay.
+
+## Functions
+
+- **constructor:** Initializes the contract with an initial supply of 1000 ESF tokens and sets the contract creator as the owner.
+  
+- **mint:** Allows eligible addresses to mint tokens based on the current `_mintAmount` and `_mintDelay`. Requires that minting is enabled and that the caller has waited the required delay since the last minting operation.
+
+- **setMintingAmount:** Sets a new value for `_mintAmount`. Only accessible to the contract owner.
+
+- **setMintingDelay:** Sets a new value for `_mintDelay`. Only accessible to the contract owner.
+
+## Modifiers
+
+- **restricted:** Ensures that only the contract owner can execute certain functions by checking if `msg.sender` matches `_owner`.
+
+## Security Considerations
+
+- The `restricted` modifier ensures that critical functions (`setMintingAmount` and `setMintingDelay`) can only be accessed by the contract owner, preventing unauthorized changes to minting parameters.
+
+- The `mint` function includes checks to prevent unauthorized minting and enforces a delay between minting operations to control token supply inflation.
 
 ## Getting Started
 
