@@ -13,7 +13,17 @@ const config: HardhatUserConfig = {
       accounts: {
         mnemonic: process.env.LOCAL_SECRET
       }
+    },
+    bsctest: {
+      url: process.env.BSCTEST_URL,
+      chainId: 97,
+      accounts: {
+        mnemonic: process.env.BSCTEST_SECRET
+      }
     }
+  },
+  etherscan: {
+    apiKey: process.env.API_KEY
   }
 };
 

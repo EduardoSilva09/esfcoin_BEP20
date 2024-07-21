@@ -7,7 +7,8 @@
     "start": "npx hardhat node",
     "test": "npx hardhat test",
     "compile": "npx hardhat compile",
-    "deploy:dev": "npx hardhat ignition deploy ignition/modules/EsfCoin.ts --network local"
+    "deploy:dev": "npx hardhat ignition deploy ignition/modules/EsfCoin.ts --network local",
+    "deploy:bsctest": "npx hardhat run scripts/deploy.ts --network bsctest"
   },
   "author": "EduardoSilva09",
   "license": "MIT",
