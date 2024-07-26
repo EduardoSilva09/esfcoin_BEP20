@@ -38,7 +38,7 @@ The owner of the contract has exclusive rights to:
 
 - **constructor:** Initializes the contract with an initial supply of 1000 ESF tokens and sets the contract creator as the owner.
   
-- **mint:** Allows eligible addresses to mint tokens based on the current `_mintAmount` and `_mintDelay`. Requires that minting is enabled and that the caller has waited the required delay since the last minting operation.
+- **mint:** Allows eligible addresses to mint tokens based on the current `_mintAmount` and `_mintDelay`. The function checks if minting is enabled (`_mintAmount > 0`) and ensures that the caller has waited the required time (`nexMint[to]` timestamp) since their last minting. If both conditions are met, it mints tokens to the specified address and updates the timestamp to enforce the delay before they can mint again. Only accessible to the contract owner.
 
 - **setMintingAmount:** Sets a new value for `_mintAmount`. Only accessible to the contract owner.
 

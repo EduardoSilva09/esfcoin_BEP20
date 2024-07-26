@@ -19,23 +19,26 @@ contract EsfCoin is ERC20 {
      */
     constructor() ERC20("EsfCoin", "ESF") {
         _owner = msg.sender;
-        _mint(_msgSender(), 1000 * 10 ** 18);
+        _mint(_msgSender(), 1000000 * 10 ** 18);
     }
     /**
-     * @dev Allows eligible addresses to mint tokens.
+     * @dev Mints tokens to a specified address.
+     * @param to The address to which tokens will be minted.
      * Requirements:
      * - Minting must be enabled (_mintAmount > 0).
      * - Caller must wait the required delay since the last minting operation.
+     *
      */
-    function mint() public {
+    function mint(address to) public restricted {
         require(_mintAmount > 0, "Minting is not enabled.");
         require(
-            block.timestamp > nexMint[_msgSender()],
+            block.timestamp > nexMint[to],
             "You cannot mint twice in a row."
         );
-        _mint(_msgSender(), _mintAmount);
-        nexMint[_msgSender()] = block.timestamp + _mintDelay;
+        _mint(to, _mintAmount);
+        nexMint[to] = block.timestamp + _mintDelay;
     }
+
     /**
      * @dev Sets the amount of tokens to mint on each minting operation.
      * @param newAmount New minting amount

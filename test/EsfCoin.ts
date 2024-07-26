@@ -43,13 +43,13 @@ describe("EsfCoin Tests", function () {
     it("Should have correct totalSupply", async function () {
       const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
       const totalSupply = await esfCoin.totalSupply();
-      expect(totalSupply).to.equal(1000n * 10n ** 18n);
+      expect(totalSupply).to.equal(1000000n * 10n ** 18n);
     });
 
     it("Should get balance", async function () {
       const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
       const balance = await esfCoin.balanceOf(owner.address);
-      expect(balance).to.equal(1000n * 10n ** 18n);
+      expect(balance).to.equal(1000000n * 10n ** 18n);
     });
 
     it("Should transfer", async function () {
@@ -61,8 +61,8 @@ describe("EsfCoin Tests", function () {
 
       const balanceOwnerAfter = await esfCoin.balanceOf(owner.address);
       const balanceOtherAfter = await esfCoin.balanceOf(otherAccount.address);
-      expect(balanceOwnerBefore).to.equal((1000n * 10n ** 18n));
-      expect(balanceOwnerAfter).to.equal((1000n * 10n ** 18n) - 1n);
+      expect(balanceOwnerBefore).to.equal((1000000n * 10n ** 18n));
+      expect(balanceOwnerAfter).to.equal((1000000n * 10n ** 18n) - 1n);
       expect(balanceOtherBefore).to.equal(0);
       expect(balanceOtherAfter).to.equal(1);
     });
@@ -95,8 +95,8 @@ describe("EsfCoin Tests", function () {
       const balanceOtherAfter = await esfCoin.balanceOf(otherAccount.address);
       const allowance = await esfCoin.allowance(owner.address, otherAccount.address)
 
-      expect(balanceOwnerBefore).to.equal((1000n * 10n ** 18n));
-      expect(balanceOwnerAfter).to.equal((1000n * 10n ** 18n) - 5n);
+      expect(balanceOwnerBefore).to.equal((1000000n * 10n ** 18n));
+      expect(balanceOwnerAfter).to.equal((1000000n * 10n ** 18n) - 5n);
       expect(balanceOtherBefore).to.equal(0);
       expect(balanceOtherAfter).to.equal(5);
       expect(allowance).to.equal(5);
@@ -124,11 +124,10 @@ describe("EsfCoin Tests", function () {
 
     it("Should mint once", async function () {
       const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
-      const mintAmount = 1000n;
+      const mintAmount = 1000000n;
       await esfCoin.setMintingAmount(mintAmount);
       const balanceBefore = await esfCoin.balanceOf(otherAccount.address);
-      const instance = esfCoin.connect(otherAccount);
-      await instance.mint();
+      await esfCoin.mint(otherAccount.address);
       const balanceAfter = await esfCoin.balanceOf(otherAccount.address);
       expect(balanceAfter).to.equal(balanceBefore + mintAmount);
     })
@@ -139,10 +138,8 @@ describe("EsfCoin Tests", function () {
       await esfCoin.setMintingAmount(mintAmount);
 
       const balanceBefore = await esfCoin.balanceOf(owner.address);
-      await esfCoin.mint();
-
-      const instance = esfCoin.connect(otherAccount);
-      await instance.mint();
+      await esfCoin.mint(owner.address);
+      await esfCoin.mint(otherAccount.address);
 
       const balanceAfter = await esfCoin.balanceOf(owner.address);
       expect(balanceAfter).to.equal(balanceBefore + mintAmount);
@@ -153,20 +150,20 @@ describe("EsfCoin Tests", function () {
       const mintAmount = 1000n;
       await esfCoin.setMintingAmount(mintAmount);
 
-      const balanceBefore = await esfCoin.balanceOf(owner.address);
-      await esfCoin.mint();
+      const balanceBefore = await esfCoin.balanceOf(otherAccount.address);
+      await esfCoin.mint(otherAccount.address);
 
       const mintDelay = ONE_DAY_IN_SECONDS * 2;
       await time.increase(mintDelay);
-      await esfCoin.mint();
+      await esfCoin.mint(otherAccount.address);
 
-      const balanceAfter = await esfCoin.balanceOf(owner.address);
+      const balanceAfter = await esfCoin.balanceOf(otherAccount.address);
       expect(balanceAfter).to.equal(balanceBefore + (mintAmount * 2n));
     })
 
     it("Should  NOT set mint amount", async function () {
       const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
-      const mintAmount = 1000n;
+      const mintAmount = 1000000n;
       const instance = esfCoin.connect(otherAccount);
       await expect(instance.setMintingAmount(mintAmount))
         .to.be.revertedWith("You do not have permission.");
@@ -182,17 +179,17 @@ describe("EsfCoin Tests", function () {
     it("Should  NOT mint", async function () {
       const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
 
-      await expect(esfCoin.mint())
+      await expect(esfCoin.mint(owner.address))
         .to.be.revertedWith("Minting is not enabled.");
     })
 
     it("Should  NOT mint twice", async function () {
       const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
-      const mintAmount = 1000n;
+      const mintAmount = 1000000n;
       await esfCoin.setMintingAmount(mintAmount);
-      await esfCoin.mint();
+      await esfCoin.mint(otherAccount.address);
 
-      await expect(esfCoin.mint())
+      await expect(esfCoin.mint(otherAccount.address))
         .to.be.revertedWith("You cannot mint twice in a row.");
     })
   });
